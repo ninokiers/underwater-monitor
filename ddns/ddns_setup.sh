@@ -1,15 +1,7 @@
 #!/usr/bin/env bash
-
 set -e
 
-echo "Enter your Cloudflare API Token:"
-read -r CF_API_TOKEN
-
-echo "Enter your root domain (zone name, e.g. hanobayreef.com):"
-read -r ZONE_NAME
-
-RECORDS="$ZONE_NAME www.$ZONE_NAME"
-CONFIG_FILE="ddns_config.env"
+. ../config.env
 
 # Get Zone ID
 ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$ZONE_NAME" \
@@ -21,9 +13,7 @@ if [ "$ZONE_ID" = "null" ] || [ -z "$ZONE_ID" ]; then
   exit 1
 fi
 
-echo "ZONE_NAME=$ZONE_NAME" > "$CONFIG_FILE"
 echo "ZONE_ID=$ZONE_ID" >> "$CONFIG_FILE"
-echo "CF_API_TOKEN=$CF_API_TOKEN" >> "$CONFIG_FILE"
 
 # Get Record IDs
 for RECORD in $RECORDS; do

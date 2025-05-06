@@ -2,7 +2,7 @@
 
 LAST_IP_FILE="last_ip.txt"
 
-. ./ddns_config.env
+. ../config.env
 
 # Get current IP
 IP=$(curl -s https://api.ipify.org)
