@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
+set -e
 
 echo "Enter your Cloudflare API Token:"
 read -r CF_API_TOKEN

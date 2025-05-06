@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 LAST_IP_FILE="./last_ip.txt"
 
