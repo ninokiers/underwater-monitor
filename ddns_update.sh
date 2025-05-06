@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-LAST_IP_FILE="./last_ip.txt"
+LAST_IP_FILE="last_ip.txt"
 
 . ./ddns_config.env
 
