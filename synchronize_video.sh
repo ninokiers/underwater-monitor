@@ -9,9 +9,6 @@ OUTPUT_PATH=/home/admin/video_archive/
 DB_PATH=/home/admin/video_archive/recordings.db
 TMP_CONCAT_LIST=/tmp/ts_concat_list.txt
 
-# Create directories if they don't exist
-mkdir -p "$LOCAL_PATH" "$OUTPUT_PATH"
-
 # 1. Fetch list of in-use .ts files from m3u8
 ssh "$REMOTE_USER@$REMOTE_HOST" "grep '.ts' ${REMOTE_PATH}stream.m3u8" | sort > /tmp/in_use_ts.txt
 
@@ -45,17 +42,8 @@ ffmpeg -y -f concat -safe 0 -i "$TMP_CONCAT_LIST" -c copy "$OUTPUT_PATH/$OUTPUT_
 # 7. Remove used .ts files
 xargs rm < /tmp/ts_file_list.txt
 
-# 8. Log in SQLite
-sqlite3 "$DB_PATH" <<EOF
-CREATE TABLE IF NOT EXISTS recordings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    filename TEXT NOT NULL,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-    on_disk BOOLEAN DEFAULT 1
-);
-INSERT INTO recordings (filename) VALUES ('$OUTPUT_FILE');
-EOF
-
+# Update in SQLite
+sqlite3 "$DB_PATH" "INSERT INTO recordings (filename) VALUES ('$OUTPUT_FILE');"
 echo "Archived and logged $OUTPUT_FILE"
 
 # 9. Check disk space and trim if < 2GB

@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
-
 set -e
 
 # Create folders
 echo "Creating directories..."
-mkdir -v -p video_archive
-mkdir -v -p video_segments
-rm -f video_archive/*
-rm -f video_segments/*
+mkdir -v -p video_archive video_segments
+rm -f video_archive/* video_segments/*
 
 # Create the SQLite database and schema
 DB_PATH="video_archive/data.db"
