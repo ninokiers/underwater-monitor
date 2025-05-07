@@ -3,9 +3,8 @@ set -e
 
 . ./config.env
 
-
 # Get Zone ID
-ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$CF_ZONE_NAME" \
+CF_ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$CF_ZONE_NAME" \
   -H "Authorization: Bearer $CF_API_TOKEN" \
   -H "Content-Type: application/json" | jq -r '.result[0].id')
 
@@ -38,7 +37,7 @@ echo "Configuration saved to $CONFIG_FILE"
 SCRIPT_NAME="ddns_update.sh"
 
 echo "Downloading $SCRIPT_NAME from GitHub..."
-curl -fsSL "$REPO_URL/ddns/$SCRIPT_NAME" -o "$SCRIPT_NAME" || {
+curl -fsSL "$REPOSITORY/ddns/$SCRIPT_NAME" -o "$SCRIPT_NAME" || {
   echo "Failed to download $SCRIPT_NAME from GitHub."
   exit 1
 }
