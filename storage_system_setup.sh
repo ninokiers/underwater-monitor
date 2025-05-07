@@ -46,12 +46,13 @@ echo "Setup complete."
 # Create systemd service
 echo "Creating systemd service and timer..."
 
-cat <<EOF | sudo tee /etc/systemd/system/video-sync.service > dev/null
+cat <<EOF | sudo tee /etc/systemd/system/video-sync.service > /dev/null
 [Unit]
 Description=Sync and assemble video clips from Pi 5
 
 [Service]
 Type=oneshot
+WorkingDirectory=$PWD
 ExecStart=$PWD/$SCRIPT_FILE
 EOF
 
