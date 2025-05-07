@@ -45,12 +45,8 @@ curl -fsSL "$REPOSITORY/$SCRIPT_NAME" -o "$SCRIPT_NAME" || {
 chmod +x "$SCRIPT_NAME"
 echo "Download complete."
 
-# Set up systemd timer and service to run updater every minute
-SERVICE_PATH="/etc/systemd/system/ddns_update.service"
-TIMER_PATH="/etc/systemd/system/ddns_update.timer"
-
 # Create systemd service
-sudo tee "$SERVICE_PATH" > /dev/null <<EOF
+sudo tee "/etc/systemd/system/ddns_update.service" > /dev/null <<EOF
 [Unit]
 Description=Cloudflare DDNS Update
 
@@ -60,7 +56,7 @@ ExecStart=$PWD/$SCRIPT_NAME
 EOF
 
 # Create system-wide systemd timer
-sudo tee "$TIMER_PATH" > /dev/null <<EOF
+sudo tee "/etc/systemd/system/ddns_update.timer" > /dev/null <<EOF
 [Unit]
 Description=Run Cloudflare DDNS Update every minute
 
@@ -75,6 +71,7 @@ WantedBy=timers.target
 EOF
 
 # Reload and enable
+sudo systemctl daemon-reexec
 sudo systemctl daemon-reload
 sudo systemctl enable --now ddns_update.timer
 
