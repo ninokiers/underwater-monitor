@@ -29,8 +29,8 @@ update_record() {
     --data "{\"type\":\"A\",\"name\":\"$RECORD_NAME\",\"content\":\"$IP\",\"ttl\":1,\"proxied\":true}" > /dev/null
 }
 
-update_record "$ZONE_NAME" "$CF_ROOT_RECORD_ID"
-update_record "www.$ZONE_NAME" "$CF_WWW_RECORD_ID"
+update_record "$CF_ZONE_NAME" "$CF_ROOT_RECORD_ID"
+update_record "www.$CF_ZONE_NAME" "$CF_WWW_RECORD_ID"
 
 # Save current IP
 echo "$IP" > "$LAST_IP_FILE"

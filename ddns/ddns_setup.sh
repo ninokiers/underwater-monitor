@@ -52,6 +52,7 @@ Description=Cloudflare DDNS Update
 
 [Service]
 Type=oneshot
+WorkingDirectory=$PWD
 ExecStart=$PWD/$SCRIPT_NAME
 EOF
 
