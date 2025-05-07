@@ -34,10 +34,10 @@ done
 echo "Configuration saved to $CONFIG_FILE"
 
 # Download updater script from GitHub
-SCRIPT_NAME="ddns_update.sh"
+SCRIPT_NAME="ddns/ddns_update.sh"
 
 echo "Downloading $SCRIPT_NAME from GitHub..."
-curl -fsSL "$REPOSITORY/ddns/$SCRIPT_NAME" -o "$SCRIPT_NAME" || {
+curl -fsSL "$REPOSITORY/$SCRIPT_NAME" -o "$SCRIPT_NAME" || {
   echo "Failed to download $SCRIPT_NAME from GitHub."
   exit 1
 }

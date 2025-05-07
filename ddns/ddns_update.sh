@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-LAST_IP_FILE="last_ip.txt"
+LAST_IP_FILE="ddns/last_ip.txt"
 
-. ../config.env
+. ./config.env
 
 # Get current IP
 IP=$(curl -s https://api.ipify.org)
