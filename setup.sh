@@ -30,6 +30,7 @@ ssh-copy-id "$SSH_REMOTE_USER@$SSH_REMOTE_HOST"
 
 # Download and install DDNS updater
 DDNS_SETUP="ddns/ddns_setup.sh"
+mkdir -vp "ddns"
 curl -fsSL "$REPOSITORY/$DDNS_SETUP" -o "$DDNS_SETUP" || {
   echo "Failed to download $DDNS_SETUP from GitHub."
   exit 1
