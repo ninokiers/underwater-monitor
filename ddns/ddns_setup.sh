@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 set -e
 
-. ../config.env
+. ./config.env
+
 
 # Get Zone ID
-ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$ZONE_NAME" \
+ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$CF_ZONE_NAME" \
   -H "Authorization: Bearer $CF_API_TOKEN" \
   -H "Content-Type: application/json" | jq -r '.result[0].id')
 
-if [ "$ZONE_ID" = "null" ] || [ -z "$ZONE_ID" ]; then
-  echo "Error: Could not find Zone ID for $ZONE_NAME"
+if [ "$CF_ZONE_ID" = "null" ] || [ -z "$CF_ZONE_ID" ]; then
+  echo "Error: Could not find Zone ID for $CF_ZONE_NAME"
   exit 1
 fi
 
-echo "ZONE_ID=$ZONE_ID" >> "$CONFIG_FILE"
+echo "CF_ZONE_ID=$CF_ZONE_ID" >> "$CONFIG_FILE"
 
 # Get Record IDs
+RECORDS="$CF_ZONE_NAME www.$CF_ZONE_NAME"
 for RECORD in $RECORDS; do
-  RECORD_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$RECORD" \
+  RECORD_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records?name=$RECORD" \
     -H "Authorization: Bearer $CF_API_TOKEN" \
     -H "Content-Type: application/json" | jq -r '.result[0].id')
 
@@ -26,18 +28,17 @@ for RECORD in $RECORDS; do
     exit 1
   fi
 
-  VAR_NAME=$(echo "$RECORD" | sed 's/^www\..*/WWW/; t; s/.*/ROOT/')_ID
-  echo "$VAR_NAME=$RECORD_ID" >> "$CONFIG_FILE"
+  VAR_NAME=$(echo "$RECORD" | sed 's/^www\..*/WWW_/; t; s/.*/ROOT/')
+  echo "CF_$VAR_NAME_RECORD_ID=$RECORD_ID" >> "$CONFIG_FILE"
 done
 
 echo "Configuration saved to $CONFIG_FILE"
 
 # Download updater script from GitHub
-REPO_URL="https://raw.githubusercontent.com/ninokiers/underwater-monitor/ddns/"
 SCRIPT_NAME="ddns_update.sh"
 
 echo "Downloading $SCRIPT_NAME from GitHub..."
-curl -fsSL "$REPO_URL$SCRIPT_NAME" -o "$SCRIPT_NAME" || {
+curl -fsSL "$REPO_URL/ddns/$SCRIPT_NAME" -o "$SCRIPT_NAME" || {
   echo "Failed to download $SCRIPT_NAME from GitHub."
   exit 1
 }
