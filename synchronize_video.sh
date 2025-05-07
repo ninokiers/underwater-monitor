@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e
 
 . ./config.env
 # Temporary, move to setup.sh
