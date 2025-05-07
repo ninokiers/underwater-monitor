@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 set -e
 
+. ./config.env
+
 # Create folders
 echo "Creating directories..."
-mkdir -v -p video_archive video_segments
+mkdir -vp video_archive video_segments
 rm -f video_archive/* video_segments/*
 
 # Create the SQLite database and schema
 DB_PATH="video_archive/data.db"
+echo "DB_PATH=$DB_PATH" >> "$CONFIG_FILE"
 echo "Setting up SQLite database at $DB_PATH"
 
 sqlite3 "$DB_PATH" <<EOF
@@ -28,9 +31,14 @@ EOF
 
 # Download synchronize_video.sh from GitHub
 echo "Downloading script(s) from GitHub..."
-SCRIPT_PATH="synchronize_video.sh"
-curl -fsSL https://raw.githubusercontent.com/ninokiers/underwater-monitor/storage-system/synchronize_video.sh -o "$SCRIPT_PATH"
-chmod +x "$SCRIPT_PATH"
+SCRIPT_FILE="synchronize_video.sh"
+
+curl -fsSL "$REPOSITORY/$SCRIPT_FILE" -o "$SCRIPT_FILE" || {
+  echo "Unable to download $SCRIPT_FILE from GitHub."
+  exit 1
+}
+
+chmod +x "$SCRIPT_FILE"
 
 echo "Setup complete."
 
