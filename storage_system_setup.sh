@@ -7,8 +7,11 @@ set -e
 echo "Creating directories..."
 mkdir -vp video_archive video_segments
 rm -f video_archive/* video_segments/*
+echo "Created."
 
 # Create the SQLite database and schema
+echo "Creating database...."
+
 DB_PATH="video_archive/data.db"
 echo "DB_PATH=$DB_PATH" >> "$CONFIG_FILE"
 echo "Setting up SQLite database at $DB_PATH"
@@ -29,11 +32,12 @@ CREATE TABLE IF NOT EXISTS sensor_readings (
 );
 EOF
 
+echo "Created."
+
 # Download synchronize_video.sh from GitHub
 echo "Downloading script(s) from GitHub..."
 SCRIPT_FILE="synchronize_video.sh"
 
-REPOSITORY="https://raw.githubusercontent.com/ninokiers/underwater-monitor/refs/heads/storage-system"
 curl -fsSL "$REPOSITORY/$SCRIPT_FILE" -o "$SCRIPT_FILE" || {
   echo "Unable to download $SCRIPT_FILE from GitHub."
   exit 1
@@ -41,12 +45,12 @@ curl -fsSL "$REPOSITORY/$SCRIPT_FILE" -o "$SCRIPT_FILE" || {
 
 chmod +x "$SCRIPT_FILE"
 
-echo "Setup complete."
+echo "Download and installation complete."
 
 # Create systemd service
 echo "Creating systemd service and timer..."
 
-cat <<EOF | sudo tee /etc/systemd/system/video-sync.service > /dev/null
+cat <<EOF | sudo tee /etc/systemd/system/video_sync.service > /dev/null
 [Unit]
 Description=Sync and assemble video clips from Pi 5
 
@@ -57,14 +61,14 @@ ExecStart=$PWD/$SCRIPT_FILE
 EOF
 
 # Create systemd timer
-cat <<EOF | sudo tee /etc/systemd/system/video-sync.timer > /dev/null
+cat <<EOF | sudo tee /etc/systemd/system/video_sync.timer > /dev/null
 [Unit]
 Description=Run reef-video-sync every 3 minutes
 
 [Timer]
 OnBootSec=2min
 OnUnitActiveSec=3min
-Unit=video-sync.service
+Unit=video_sync.service
 
 [Install]
 WantedBy=timers.target
@@ -73,7 +77,6 @@ EOF
 # --- Enable and start the timer ---
 sudo systemctl daemon-reexec
 sudo systemctl daemon-reload
-sudo systemctl enable --now video-sync.timer
+sudo systemctl enable --now video_sync.timer
 
-echo "Setup complete!"
-echo "Videos will sync and archive every 3 minutes."
+echo "Done! Videos will sync and archive every 3 minutes."
