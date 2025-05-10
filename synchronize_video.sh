@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
 . ./config.env
-# Temporary, move to setup.sh
-REMOTE_SERVER_PATH="/home/$SSH_REMOTE_USER/server"
-echo "REMOTE_SERVER_PATH=$REMOTE_SERVER_PATH" >> "$CONFIG_FILE"
 
 # Configuration
 REMOTE_PATH="$REMOTE_SERVER_PATH/stream"
@@ -12,6 +9,7 @@ ARCHIVE_PATH="video_archive"
 TMP_CONCAT_LIST=/tmp/ts_concat_list.txt
 
 # Compute a list of all .ts files that are not currently in use (in the .m3u8 file)
+echo "Synchronizing all remote .ts files to the local machine..."
 ssh "$SSH_REMOTE_USER@$SSH_REMOTE_HOST" "cd $REMOTE_PATH && comm -23 <(ls -1v *.ts | sort) <(grep '.ts' stream.m3u8 | sort) | sort -V | head -n 300 > /tmp/safe_ts.txt"
 
 # Sync all the .ts files that are safe to copy and remove from source via tar over SSH
@@ -31,6 +29,8 @@ fi
 
 awk -v path="$PWD/" '{print "file \x27" path $0 "\x27"}' /tmp/ts_file_list.txt > "$TMP_CONCAT_LIST"
 cd .. || exit 1
+
+echo "Synchronization done."
 
 # Create output .mp4 file and add to SQLite database
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
