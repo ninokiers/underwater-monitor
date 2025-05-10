@@ -27,7 +27,7 @@ for RECORD in $RECORDS; do
     exit 1
   fi
 
-  VAR_NAME=CF_$(echo "$RECORD" | sed 's/^www\..*/WWW_/; t; s/.*/ROOT/')_RECORD_ID
+  VAR_NAME=CF_$(echo "$RECORD" | sed 's/^www\..*/WWW/; t; s/.*/ROOT/')_RECORD_ID
   echo "$VAR_NAME=$RECORD_ID" >> "$CONFIG_FILE"
 done
 
