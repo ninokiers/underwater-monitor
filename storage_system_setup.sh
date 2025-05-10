@@ -46,7 +46,7 @@ echo "Setup complete."
 # Create systemd service
 echo "Creating systemd service and timer..."
 
-cat <<EOF | sudo tee /etc/systemd/system/video-sync.service > /dev/null
+cat <<EOF | sudo tee /etc/systemd/system/video_sync.service > /dev/null
 [Unit]
 Description=Sync and assemble video clips from Pi 5
 
@@ -57,14 +57,14 @@ ExecStart=$PWD/$SCRIPT_FILE
 EOF
 
 # Create systemd timer
-cat <<EOF | sudo tee /etc/systemd/system/video-sync.timer > /dev/null
+cat <<EOF | sudo tee /etc/systemd/system/video_sync.timer > /dev/null
 [Unit]
 Description=Run reef-video-sync every 3 minutes
 
 [Timer]
 OnBootSec=2min
 OnUnitActiveSec=3min
-Unit=video-sync.service
+Unit=video_sync.service
 
 [Install]
 WantedBy=timers.target
@@ -73,7 +73,7 @@ EOF
 # --- Enable and start the timer ---
 sudo systemctl daemon-reexec
 sudo systemctl daemon-reload
-sudo systemctl enable --now video-sync.timer
+sudo systemctl enable --now video_sync.timer
 
 echo "Setup complete!"
 echo "Videos will sync and archive every 3 minutes."
