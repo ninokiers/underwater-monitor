@@ -4,21 +4,24 @@
 
 SOURCE_DIR="video_archive"
 
-# Temporary: check bucket size
-MAX_BYTES=$((10 * 1024 * 1024 * 1024)) # 10 GB
+# Update 'on_disk' flag for all files to be deleted
+UPLOAD_LIST=$(find "$SOURCE_DIR" -maxdepth 1 -type f -name "*.mp4")
 
-BUCKET_SIZE=$(aws s3api list-objects-v2 \
-  --bucket "$AWS_BUCKET" \
-  --query "sum(Contents[].size)" \
-  --output text)
+for FILE in $UPLOAD_LIST; do
+  BASENAME=$(basename "$FILE")
+  sqlite3 "$DB_PATH" "UPDATE recordings SET on_disk = 0 WHERE filename = '$BASENAME';"
+done
 
-BUCKET_SIZE=${BUCKET_SIZE:-0}
-
-if [ "$BUCKET_SIZE" -lt "$MAX_BYTES" ]; then
-  echo "Bucket under 10GB ($BUCKET_SIZE bytes), syncing..."
+# Check if cloud upload is enabled
+if [ "$CLOUD_UPLOAD" = "FALSE" ]; then
+  echo "Cloud upload is diabled. Exiting..."
+  rm "$SOURCE_DIR"/*.mp4
+  exit 0
+fi
 
 # Sync database and video files
 aws s3 sync "$SOURCE_DIR" "s3://$AWS_BUCKET" \
+  --endpoint-url "$AWS_ENDPOINT" \
   --exclude "*" \
   --include "*.mp4" \
   --include "data.db"
@@ -26,9 +29,4 @@ aws s3 sync "$SOURCE_DIR" "s3://$AWS_BUCKET" \
 # Check exit status and remove old files
 if [ $? -eq 0 ]; then
   find "$SOURCE_DIR" -type f -name "*.mp4" -delete
-fi
-
-# Temporary: check bucket size
-else
-  echo "Bucket exceeds 10GB, skipping sync!"
 fi
