@@ -23,26 +23,27 @@ update_record() {
   RECORD_ID="$2"
   echo "Updating $RECORD_NAME to $IP..."
 
-  RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID" \
+  RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records/$RECORD_ID" \
     -H "Authorization: Bearer $CF_API_TOKEN" \
     -H "Content-Type: application/json" \
     --data "{\"type\":\"A\",\"name\":\"$RECORD_NAME\",\"content\":\"$IP\",\"ttl\":1,\"proxied\":true}")
 
-  echo "$RESPONSE"
   if echo "$RESPONSE" | grep -q '"success":true'; then
     echo "Update for $RECORD_NAME successful."
-    return 1
+    return 0
   else
     echo "Update for $RECORD_NAME unsuccessful."
-    return 0
+    return 1
   fi
 }
 
-SUCCESS1=$(update_record "$CF_ZONE_NAME" "$CF_ROOT_RECORD_ID")
-SUCCESS2=$(update_record "www.$CF_ZONE_NAME" "$CF_WWW_RECORD_ID")
+update_record "$CF_ZONE_NAME" "$CF_ROOT_RECORD_ID"
+SUCCESS1=$?
+update_record "www.$CF_ZONE_NAME" "$CF_WWW_RECORD_ID"
+SUCCESS2=$?
 
 # Save current IP
-if [ "$SUCCESS1" = "1" ] && [ "$SUCCESS2" = "1" ]; then
+if [ "$SUCCESS1" -eq 0 ] && [ "$SUCCESS2" -eq 0 ]; then
   echo "$CURRENT_IP" > "$LAST_IP_FILE"
 else
   echo "$(date): Not saving IP — one or both updates failed."
