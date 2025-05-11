@@ -8,6 +8,19 @@ SEGMENT_PATH="video_segments"
 ARCHIVE_PATH="video_archive"
 TMP_CONCAT_LIST=/tmp/ts_concat_list.txt
 
+# Synchronize sensor data
+SENSOR_FILE="$REMOTE_INTERVAL_PATH/sensor_data.txt"
+scp "$SSH_REMOTE_USER@$SSH_REMOTE_HOST:$SENSOR_FILE" "/tmp/sensor_data.txt"
+
+if [ $? -eq 0 ]; then
+  ssh "$SSH_REMOTE_USER@$SSH_REMOTE_HOST" "rm -f $SENSOR_FILE"
+  source "/tmp/sensor_data.txt"
+  sqlite3 "$DB_PATH" "INSERT INTO sensor_readings (lux, temperature) VALUES ($lux, $temperature_c);"
+  echo "Transferred and stored sensor data successfully."
+else
+  echo "No new sensor data available on remote host."
+fi
+
 # Compute a list of all .ts files that are not currently in use (in the .m3u8 file)
 echo "Synchronizing all remote .ts files to the local machine..."
 ssh "$SSH_REMOTE_USER@$SSH_REMOTE_HOST" "cd $REMOTE_PATH && comm -23 <(ls -1v *.ts | sort) <(grep '.ts' stream.m3u8 | sort) | sort -V | head -n 300 > /tmp/safe_ts.txt"

@@ -41,6 +41,9 @@ ssh-copy-id "$SSH_REMOTE_USER@$SSH_REMOTE_HOST"
 REMOTE_SERVER_PATH="/home/$SSH_REMOTE_USER/server"
 echo "REMOTE_SERVER_PATH=$REMOTE_SERVER_PATH" >> "$CONFIG_FILE"
 
+REMOTE_INTERVAL_PATH="/home/$SSH_REMOTE_USER/interval"
+echo "REMOTE_INTERVAL_PATH=$REMOTE_INTERVAL_PATH" >> "$CONFIG_FILE"
+
 # Download and install DDNS updater
 DDNS_SETUP="ddns/ddns_setup.sh"
 mkdir -vp "ddns"
