@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hanö Bay - Configuration</title>
+    <style>
+      body {
+        margin: 0;
+        background-color: #b9c4b9;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        height: 100vh;
+      }
+
+      header {
+        width: 100%;
+        height: 16vh;
+        background-color: white;
+        color: #003366;
+      }
+      
+      .header-container {
+        height: 90%;
+        margin: 1vh;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logos {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+      
+      @media (max-width: 1000px) {
+        .logos {
+          display: none;
+        }
+      }
+
+      .logos img {
+        height: 14vh;
+      }
+
+      .title {
+        flex-grow: 1;
+        text-align: center;
+        font-size: 8vh;
+        font-weight: bold;
+      }
+
+      main {
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem;
+        }
+
+        form {
+          background: white;
+          padding: 2rem;
+          border-radius: 12px;
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+          max-width: 500px;
+          width: 100%;
+        }
+
+        form h1 {
+          text-align: center;
+          color: #003366;
+          margin-bottom: 1.5rem;
+        }
+
+        label {
+          display: block;
+          margin-top: 1rem;
+          margin-bottom: 0.25rem;
+          font-weight: bold;
+        }
+
+        select,
+        input[type="number"] {
+          width: 100%;
+          padding: 0.5rem;
+          font-size: 1rem;
+          border: 1px solid #ccc;
+          border-radius: 6px;
+          box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+          margin-top: 2rem;
+          width: 100%;
+          padding: 0.75rem;
+          font-size: 1rem;
+          background-color: #003366;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+          background-color: #005299;
+        }
+
+        #confirmation {
+          text-align: center;
+          margin-top: 1rem;
+          color: green;
+          font-weight: bold;
+          display: none;
+        }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-container">
+        <div class="logos">
+          <img src="static/logos/marint_centrum.png" alt="Marint Centrum" />
+          <img src="static/logos/hano_torskrev.png" alt="Hanö Torskrev" />
+        </div>
+        <div class="title">Configuration</div>
+        <div class="logos">
+          <img src="static/logos/hkr.png" alt="Högskolan Kristianstad" />
+          <img src="static/logos/lund_university.png" alt="Lund University" />
+        </div>
+      </div>
+    </header>
+    <main>
+        <form id="config-form">
+          <h1>Update Config</h1>
+
+          <label>Framerate:</label>
+          <select name="framerate" required>
+            <option value="15" {% if config.framerate == 15 %}selected{% endif %}>15 FPS</option>
+            <option value="25" {% if config.framerate == 25 %}selected{% endif %}>25 FPS</option>
+            <option value="30" {% if config.framerate == 30 %}selected{% endif %}>30 FPS</option>
+          </select>
+
+          <label>Resolution:</label>
+          <select name="resolution" required>
+            <option value="320x240" {% if config.resolution == (320, 240) %}selected{% endif %}>320 x 240</option>
+            <option value="640x360" {% if config.resolution == (640, 360) %}selected{% endif %}>640 x 360</option>
+            <option value="1280x720" {% if config.resolution == (1280, 720) %}selected{% endif %}>1280 x 720</option>
+            <option value="1920x1080" {% if config.resolution == (1920, 1080) %}selected{% endif %}>1920 x 1080</option>
+          </select>
+
+          <label>Env. Sensor Interval (min):</label>
+          <input type="number" name="env_sensor_interval" value="{{ config.env_sensor_interval }}" required>
+
+          <input type="submit" value="Update">
+          <div id="confirmation">Configuration updated successfully!</div>
+        </form>
+      </main>
+
+      <script>
+        const form = document.getElementById("config-form");
+        const confirmation = document.getElementById("confirmation");
+
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const formData = new FormData(form);
+          const [width, height] = formData.get("resolution").split("x").map(Number);
+
+          const payload = {
+            framerate: parseInt(formData.get("framerate")),
+            width,
+            height,
+            env_sensor_interval: parseInt(formData.get("env_sensor_interval"))
+          };
+
+          const response = await fetch("/set-config", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(payload)
+          });
+
+          if (response.ok) {
+            confirmation.style.display = "block";
+            setTimeout(() => {
+              confirmation.style.display = "none";
+            }, 3000);
+          } else {
+            alert("Error updating configuration.");
+          }
+        });
+      </script>
+    </body>
+    </html>

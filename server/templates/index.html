@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hanö Bay - Underwater Stream</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+      body {
+        margin: 0;
+        background-color: #b9c4b9;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        height: 100vh;
+      }
+
+      header {
+        width: 100%;
+        height: 16vh;
+        background-color: white;
+        color: #003366;
+      }
+      
+      .header-container {
+        height: 90%;
+        margin: 1vh;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logos {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+      
+      @media (max-width: 1000px) {
+        .logos {
+          display: none;
+        }
+      }
+
+      .logos img {
+        height: 14vh;
+      }
+
+      .title {
+        flex-grow: 1;
+        text-align: center;
+        font-size: 8vh;
+        font-weight: bold;
+      }
+
+      main {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        flex-grow: 1;
+        width: 100%;
+        padding: 2vh;
+        box-sizing: border-box;
+      }
+
+      #video {
+        width: 100%;
+        height: auto;
+        max-height: 80vh;
+        background-color: transparent;
+        object-fit: contain;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-container">
+        <div class="logos">
+          <img src="static/logos/marint_centrum.png" alt="Marint Centrum" />
+          <img src="static/logos/hano_torskrev.png" alt="Hanö Torskrev" />
+        </div>
+        <div class="title">Hanö Bay</div>
+        <div class="logos">
+          <img src="static/logos/hkr.png" alt="Högskolan Kristianstad" />
+          <img src="static/logos/lund_university.png" alt="Lund University" />
+        </div>
+      </div>
+    </header>
+    <main>
+      <video id="video" autoplay muted playsinline preload="auto"></video>
+    </main>
+    <script>
+      var video = document.getElementById("video");
+      var videoSrc = "/stream/stream.m3u8";
+      
+      if (Hls.isSupported()) {
+        var hls = new Hls();
+        hls.loadSource(videoSrc);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.play();
+        });
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = videoSrc;
+        video.addEventListener("loadedmetadata", function () {
+          video.play();
+        });
+      }
+      
+      document.addEventListener("click", function() {
+        video.play();
+      });
+      
+      
+    </script>
+  </body>
+</html>
